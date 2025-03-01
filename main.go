@@ -9,9 +9,11 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	
 	"fyne.io/fyne/v2/widget"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/canvas"
+	
 )
 
 func main() {
@@ -44,7 +46,7 @@ func main() {
 	// Function to filter specific details from `fastboot getvar all` output
 	filterFastbootGetvar := func(output string) string {
 		// Define the keys you want to extract
-		keys := []string{"anti","serialno", "product", "version", "secure", "unlocked"}
+		keys := []string{"anti", "serialno", "product", "version", "secure", "unlocked"}
 
 		// Split the output into lines
 		lines := strings.Split(output, "\n")
@@ -76,6 +78,8 @@ func main() {
 			logArea.SetText(logArea.Text + "2. Tap 'Allow' for USB debugging.\n")
 		}
 	}
+
+		
 
 	// ADB Tab
 	adbCheckButton := widget.NewButton("Check ADB", func() {
@@ -118,14 +122,13 @@ func main() {
 		logArea.SetText(logArea.Text + "Checking Fastboot Devices...\n" + output + "\n")
 	})
 
-    // fastboot info button
+	// Fastboot Info Button
 	fastbootReadInfoButton := widget.NewButton("Fastboot Read Info", func() {
 		clearLog() // Clear the log before adding new content
 		output := runCommand("fastboot", "getvar", "all")
 		filteredOutput := filterFastbootGetvar(output)
 		logArea.SetText(logArea.Text + "Reading Fastboot Info...\n" + filteredOutput + "\n")
 	})
-
 
 	fastbootRebootButton := widget.NewButton("Reboot Fastboot", func() {
 		clearLog() // Clear the log before adding new content
@@ -177,7 +180,10 @@ func main() {
 	// Layout
 	content := container.NewBorder(
 		container.NewVBox(
-			tabs, // Tabs at the top
+			container.NewHBox(
+				tabs, // Tabs on the left
+				
+			),
 		),
 		timeLabel, // Time and date at the bottom
 		nil,
