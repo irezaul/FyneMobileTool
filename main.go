@@ -89,9 +89,9 @@ func main() {
 		output := runCommand("adb", "reboot")
 		logArea.SetText(logArea.Text + "Successfully rebooted device...\n" + output + "\n")
 	})
-	adbFutureButton1 := widget.NewButton("Future Button 1", func() {
-		clearLog() // Clear the log before adding new content
-		logArea.SetText(logArea.Text + "Future Button 1 clicked...\n")
+	adbToBootloader := widget.NewButton("Adb to Bootloader", func() {
+		output := runCommand("adb", "reboot", "bootloader")
+		logArea.SetText(logArea.Text + "Successfully rebooted device...\n" + output + "\n")
 	})
 	adbFutureButton2 := widget.NewButton("Future Button 2", func() {
 		clearLog() // Clear the log before adding new content
@@ -106,7 +106,7 @@ func main() {
 	adbButtons := container.NewHBox(
 		adbCheckButton,
 		adbRebootButton,
-		adbFutureButton1,
+		adbToBootloader,
 		adbFutureButton2,
 		adbFutureButton3,
 	)
