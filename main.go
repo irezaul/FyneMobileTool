@@ -9,11 +9,9 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	
 	"fyne.io/fyne/v2/widget"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/canvas"
-	
 )
 
 func main() {
@@ -33,14 +31,14 @@ func main() {
 		logArea.SetText("")
 	}
 
-	// Function to execute shell commands and log output
-	runCommand := func(command string, args ...string) string {
+	// Function to execute shell commands and log output with error handling
+	runCommand := func(command string, args ...string) (string, error) {
 		cmd := exec.Command(command, args...)
 		output, err := cmd.CombinedOutput()
 		if err != nil {
-			return fmt.Sprintf("Error: %s\n%s", err, string(output))
+			return "", fmt.Errorf("command failed: %s\n%s", err, string(output))
 		}
-		return string(output)
+		return string(output), nil
 	}
 
 	// Function to filter specific details from `fastboot getvar all` output
@@ -68,7 +66,11 @@ func main() {
 	// Function to check ADB devices and handle unauthorized state
 	checkADB := func() {
 		clearLog() // Clear the log before adding new content
-		output := runCommand("adb", "devices")
+		output, err := runCommand("adb", "devices")
+		if err != nil {
+			logArea.SetText(logArea.Text + "Error checking ADB: " + err.Error() + "\n")
+			return
+		}
 		logArea.SetText(logArea.Text + "Checking ADB...\n" + output + "\n")
 
 		// Check if the output contains "unauthorized"
@@ -79,19 +81,27 @@ func main() {
 		}
 	}
 
-		
-
 	// ADB Tab
 	adbCheckButton := widget.NewButton("Check ADB", func() {
 		checkADB() // Call the checkADB function
 	})
 	adbRebootButton := widget.NewButton("Reboot Device", func() {
-		output := runCommand("adb", "reboot")
+		clearLog() // Clear the log before adding new content
+		output, err := runCommand("adb", "reboot")
+		if err != nil {
+			logArea.SetText(logArea.Text + "Error rebooting device: " + err.Error() + "\n")
+			return
+		}
 		logArea.SetText(logArea.Text + "Successfully rebooted device...\n" + output + "\n")
 	})
 	adbToBootloader := widget.NewButton("Adb to Bootloader", func() {
-		output := runCommand("adb", "reboot", "bootloader")
-		logArea.SetText(logArea.Text + "Successfully rebooted device...\n" + output + "\n")
+		clearLog() // Clear the log before adding new content
+		output, err := runCommand("adb", "reboot", "bootloader")
+		if err != nil {
+			logArea.SetText(logArea.Text + "Error rebooting to bootloader: " + err.Error() + "\n")
+			return
+		}
+		logArea.SetText(logArea.Text + "Successfully rebooted to bootloader...\n" + output + "\n")
 	})
 	adbFutureButton2 := widget.NewButton("Future Button 2", func() {
 		clearLog() // Clear the log before adding new content
@@ -118,21 +128,33 @@ func main() {
 	// Fastboot Tab
 	fastbootCheckButton := widget.NewButton("Check Fastboot", func() {
 		clearLog() // Clear the log before adding new content
-		output := runCommand("fastboot", "devices")
+		output, err := runCommand("fastboot", "devices")
+		if err != nil {
+			logArea.SetText(logArea.Text + "Error checking Fastboot devices: " + err.Error() + "\n")
+			return
+		}
 		logArea.SetText(logArea.Text + "Checking Fastboot Devices...\n" + output + "\n")
 	})
 
 	// Fastboot Info Button
 	fastbootReadInfoButton := widget.NewButton("Fastboot Read Info", func() {
 		clearLog() // Clear the log before adding new content
-		output := runCommand("fastboot", "getvar", "all")
+		output, err := runCommand("fastboot", "getvar", "all")
+		if err != nil {
+			logArea.SetText(logArea.Text + "Error reading Fastboot info: " + err.Error() + "\n")
+			return
+		}
 		filteredOutput := filterFastbootGetvar(output)
 		logArea.SetText(logArea.Text + "Reading Fastboot Info...\n" + filteredOutput + "\n")
 	})
 
 	fastbootRebootButton := widget.NewButton("Reboot Fastboot", func() {
 		clearLog() // Clear the log before adding new content
-		output := runCommand("fastboot", "reboot")
+		output, err := runCommand("fastboot", "reboot")
+		if err != nil {
+			logArea.SetText(logArea.Text + "Error rebooting Fastboot devices: " + err.Error() + "\n")
+			return
+		}
 		logArea.SetText(logArea.Text + "Rebooting Fastboot Devices...\n" + output + "\n")
 	})
 	fastbootFutureButton1 := widget.NewButton("Future Button 1", func() {
@@ -163,6 +185,24 @@ func main() {
 		container.NewTabItem("Fastboot Device", fastbootTab),
 	)
 
+	// Xiaomi Tab
+	xiaomiTab := container.NewVBox(
+		widget.NewLabel("Xiaomi"),
+	)
+	// Declare Xiaomi tab
+	Xiaomi := container.NewTabItem("Xiaomi", xiaomiTab)
+	// Add Xiaomi tab to tabs
+	tabs.Append(Xiaomi)
+
+	// Samsung Tab
+	samsungTab := container.NewVBox(
+		widget.NewLabel("Samsung"),
+	)
+	// Declare Samsung tab
+	Samsung := container.NewTabItem("Samsung", samsungTab)
+	// Add Samsung tab to tabs
+	tabs.Append(Samsung)
+
 	// Time and Date
 	timeLabel := widget.NewLabel("")
 	go func() {
@@ -182,7 +222,6 @@ func main() {
 		container.NewVBox(
 			container.NewHBox(
 				tabs, // Tabs on the left
-				
 			),
 		),
 		timeLabel, // Time and date at the bottom
@@ -190,48 +229,6 @@ func main() {
 		nil,
 		logContainer, // Log area in the center
 	)
-
-	// Xiaomi Tab
-	xiaomiTab := container.NewVBox(
-		widget.NewLabel("Xiaomi"),
-	)
-	// decelare xiaomi tab
-	Xiaomi := container.NewTabItem("Xiaomi", xiaomiTab)
-	// add xiaomi tab to tabs
-	tabs.Append(Xiaomi)
-
-
-	// Samsung Tab
-	samsungTab := container.NewVBox(
-		widget.NewLabel("Samsung"),
-	)
-	// decelare samsung tab
-	Samsung := container.NewTabItem("Samsung", samsungTab)
-	// add samsung tab to tabs
-	tabs.Append(Samsung)
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	myWindow.SetContent(content)
 	myWindow.Resize(fyne.NewSize(800, 600))
