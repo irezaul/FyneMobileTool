@@ -191,6 +191,48 @@ func main() {
 		logContainer, // Log area in the center
 	)
 
+	// Xiaomi Tab
+	xiaomiTab := container.NewVBox(
+		widget.NewLabel("Xiaomi"),
+	)
+	// decelare xiaomi tab
+	Xiaomi := container.NewTabItem("Xiaomi", xiaomiTab)
+	// add xiaomi tab to tabs
+	tabs.Append(Xiaomi)
+
+
+	// Samsung Tab
+	samsungTab := container.NewVBox(
+		widget.NewLabel("Samsung"),
+	)
+	// decelare samsung tab
+	Samsung := container.NewTabItem("Samsung", samsungTab)
+	// add samsung tab to tabs
+	tabs.Append(Samsung)
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	myWindow.SetContent(content)
 	myWindow.Resize(fyne.NewSize(800, 600))
 	myWindow.ShowAndRun()
