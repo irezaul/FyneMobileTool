@@ -186,9 +186,14 @@ func main() {
 		filteredOutput := filterAdbReadInfo(output)
 		logArea.SetText(logArea.Text + "Reading Adb Info...\n" + filteredOutput + "\n")
 	})
-	adbFutureButton3 := widget.NewButton("Future Button 3", func() {
+	adbRebootRecovery := widget.NewButton("Adb reboot recovery", func() {
 		clearLog() // Clear the log before adding new content
-		logArea.SetText(logArea.Text + "Future Button 3 clicked...\n")
+		output, err := runCommand("adb", "reboot", "recovery")
+		if err != nil {
+			logArea.SetText(logArea.Text + "Error rebooting to recovery: " + err.Error() + "\n")
+			return
+		}
+		logArea.SetText(logArea.Text + "Successfully rebooted to recovery...\n" + output + "\n")
 	})
 
 	// ADB Buttons side by side
@@ -197,7 +202,7 @@ func main() {
 		adbRebootButton,
 		adbToBootloader,
 		adbReadInfo,
-		adbFutureButton3,
+		adbRebootRecovery,
 	)
 
 	adbTab := container.NewVBox(
