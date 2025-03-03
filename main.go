@@ -195,6 +195,25 @@ func main() {
 		}
 		logArea.SetText(logArea.Text + "Successfully rebooted to recovery...\n" + output + "\n")
 	})
+	diagWithoutRoot := widget.NewButton("Diag without root", func() {
+		clearLog() // Clear the log before adding new content
+		output, err := runCommand("adb", "shell", "am", "start", "-n", "com.android.settings/.DevelopmentSettings")
+		if err != nil {
+			logArea.SetText(logArea.Text + "Error opening Diag without root: " + err.Error() + "\n")
+			return
+		}
+		logArea.SetText(logArea.Text + "Successfully opened Diag without root...\n" + output + "\n")
+	})
+	diagWithRoot := widget.NewButton("Diag with root", func() {
+		clearLog() // Clear the log before adding new content
+		output, err := runCommand("adb", "shell", "am", "start", "-n", "com.android.settings/.DevelopmentSettings")
+		if err != nil {
+			logArea.SetText(logArea.Text + "Error opening Diag with root: " + err.Error() + "\n")
+			return
+		}
+		logArea.SetText(logArea.Text + "Successfully opened Diag with root...\n" + output + "\n")
+	})
+	
 
 	// ADB Buttons side by side
 	adbButtons := container.NewHBox(
@@ -203,6 +222,10 @@ func main() {
 		adbToBootloader,
 		adbReadInfo,
 		adbRebootRecovery,
+		diagWithoutRoot,
+		diagWithRoot,
+
+		
 	)
 
 	adbTab := container.NewVBox(
