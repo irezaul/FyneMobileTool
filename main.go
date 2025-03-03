@@ -63,6 +63,79 @@ func main() {
 		return filteredOutput.String()
 	}
 
+	filterAdbReadInfo := func(output string) string {
+		// Define the keys and their corresponding labels
+	keys := map[string]string{
+		"ro.product.brand":                "Brand",
+		"ro.product.model":                "Model",
+		"ro.product.name":                 "Product",
+		"ro.hardware":                     "Hardware",
+		"ro.build.version.release":        "Version",
+		"ro.build.version.sdk":           "SdkVersion",
+		"ro.product.cpu.abi":              "Android Cpu",
+		"ro.board.platform":               "Android platform",
+		"ro.product.board":                "Board name",
+		"ro.build.version.security_patch": "Security patch",
+		"ro.build.display.id":             "Software version",
+		"persist.sys.timezone":            "Time Zone",
+		"ro.secure":                       "Root Access",
+		"ril.IMEI":                        "Device IMEI1",
+		"ril.IMEI2":                       "Device IMEI2",
+		"ro.frp.pst":                      "FRP PST",
+		"ro.boot.flash.locked":            "Bootloader state",
+		"ro.crypto.state":                 "Crypto State",
+	}
+
+	// Split the output into lines
+	lines := strings.Split(output, "\n")
+
+	// Create a map to store the parsed values
+	parsedValues := make(map[string]string)
+
+	// Parse the output and store the values
+	for _, line := range lines {
+		for key, label := range keys {
+			if strings.Contains(line, key) {
+				value := strings.TrimSpace(strings.Split(line, ":")[1])
+				parsedValues[label] = value
+				break
+			}
+		}
+	}
+
+	// Add additional logic for Root Access
+	if parsedValues["Root Access"] == "1" {
+		parsedValues["Root Access"] = "Granted"
+	} else {
+		parsedValues["Root Access"] = "Denied"
+	}
+
+	// Format the output
+	var formattedOutput strings.Builder
+	formattedOutput.WriteString("Read Information\n")
+	formattedOutput.WriteString(fmt.Sprintf("Brand: %s\n", parsedValues["Brand"]))
+	formattedOutput.WriteString(fmt.Sprintf("Model: %s\n", parsedValues["Model"]))
+	formattedOutput.WriteString(fmt.Sprintf("Product: %s\n", parsedValues["Product"]))
+	formattedOutput.WriteString(fmt.Sprintf("Hardware: %s\n", parsedValues["Hardware"]))
+	formattedOutput.WriteString(fmt.Sprintf("Version: %s\n", parsedValues["Version"]))
+	formattedOutput.WriteString(fmt.Sprintf("SdkVersion: %s\n", parsedValues["SdkVersion"]))
+	formattedOutput.WriteString(fmt.Sprintf("Android Cpu: %s\n", parsedValues["Android Cpu"]))
+	formattedOutput.WriteString(fmt.Sprintf("Android platform: %s\n", parsedValues["Android platform"]))
+	formattedOutput.WriteString(fmt.Sprintf("Board name: %s\n", parsedValues["Board name"]))
+	formattedOutput.WriteString(fmt.Sprintf("Security patch: %s\n", parsedValues["Security patch"]))
+	formattedOutput.WriteString(fmt.Sprintf("Software version: %s\n", parsedValues["Software version"]))
+	formattedOutput.WriteString(fmt.Sprintf("Time Zone: %s\n", parsedValues["Time Zone"]))
+	formattedOutput.WriteString(fmt.Sprintf("Root Access: %s\n", parsedValues["Root Access"]))
+	formattedOutput.WriteString(fmt.Sprintf("Device IMEI1: %s\n", parsedValues["Device IMEI1"]))
+	formattedOutput.WriteString(fmt.Sprintf("Device IMEI2: %s\n", parsedValues["Device IMEI2"]))
+	formattedOutput.WriteString(fmt.Sprintf("FRP PST: %s\n", parsedValues["FRP PST"]))
+	formattedOutput.WriteString(fmt.Sprintf("Bootloader state: %s\n", parsedValues["Bootloader state"]))
+	formattedOutput.WriteString(fmt.Sprintf("Crypto State: %s\n", parsedValues["Crypto State"]))
+	formattedOutput.WriteString("Operation time: 00:03\n") // Hardcoded for now
+
+	return formattedOutput.String()
+}
+
 	// Function to check ADB devices and handle unauthorized state
 	checkADB := func() {
 		clearLog() // Clear the log before adding new content
@@ -103,9 +176,15 @@ func main() {
 		}
 		logArea.SetText(logArea.Text + "Successfully rebooted to bootloader...\n" + output + "\n")
 	})
-	adbFutureButton2 := widget.NewButton("Future Button 2", func() {
+	adbReadInfo := widget.NewButton("Adb Read Info", func() {
 		clearLog() // Clear the log before adding new content
-		logArea.SetText(logArea.Text + "Future Button 2 clicked...\n")
+		output, err := runCommand("adb", "shell", "getprop")
+		if err != nil {
+			logArea.SetText(logArea.Text + "Error reading adb info: " + err.Error() + "\n")
+			return
+		}
+		filteredOutput := filterAdbReadInfo(output)
+		logArea.SetText(logArea.Text + "Reading Adb Info...\n" + filteredOutput + "\n")
 	})
 	adbFutureButton3 := widget.NewButton("Future Button 3", func() {
 		clearLog() // Clear the log before adding new content
@@ -117,7 +196,7 @@ func main() {
 		adbCheckButton,
 		adbRebootButton,
 		adbToBootloader,
-		adbFutureButton2,
+		adbReadInfo,
 		adbFutureButton3,
 	)
 
@@ -179,29 +258,186 @@ func main() {
 		fastbootButton, // Buttons side by side
 	)
 
-	// Tabs (Navbar at the top)
+	// Xiaomi Special Tab
+	xiaomiSpecialButton1 := widget.NewButton("Button 1", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Xiaomi Special Button 1 clicked...\n")
+	})
+	xiaomiSpecialButton2 := widget.NewButton("Button 2", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Xiaomi Special Button 2 clicked...\n")
+	})
+	xiaomiSpecialButton3 := widget.NewButton("Button 3", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Xiaomi Special Button 3 clicked...\n")
+	})
+	xiaomiSpecialButton4 := widget.NewButton("Button 4", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Xiaomi Special Button 4 clicked...\n")
+	})
+	xiaomiSpecialButton5 := widget.NewButton("Button 5", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Xiaomi Special Button 5 clicked...\n")
+	})
+	xiaomiSpecialButton6 := widget.NewButton("Button 6", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Xiaomi Special Button 6 clicked...\n")
+	})
+	xiaomiSpecialButton7 := widget.NewButton("Button 7", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Xiaomi Special Button 7 clicked...\n")
+	})
+	xiaomiSpecialButton8 := widget.NewButton("Button 8", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Xiaomi Special Button 8 clicked...\n")
+	})
+	xiaomiSpecialButton9 := widget.NewButton("Button 9", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Xiaomi Special Button 9 clicked...\n")
+	})
+	xiaomiSpecialButton10 := widget.NewButton("Button 10", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Xiaomi Special Button 10 clicked...\n")
+	})
+
+	// Set a smaller size for the buttons
+	smallButtonSize := fyne.NewSize(80, 30) // Width: 80, Height: 30
+	xiaomiSpecialButton1.Resize(smallButtonSize)
+	xiaomiSpecialButton2.Resize(smallButtonSize)
+	xiaomiSpecialButton3.Resize(smallButtonSize)
+	xiaomiSpecialButton4.Resize(smallButtonSize)
+	xiaomiSpecialButton5.Resize(smallButtonSize)
+	xiaomiSpecialButton6.Resize(smallButtonSize)
+	xiaomiSpecialButton7.Resize(smallButtonSize)
+	xiaomiSpecialButton8.Resize(smallButtonSize)
+	xiaomiSpecialButton9.Resize(smallButtonSize)
+	xiaomiSpecialButton10.Resize(smallButtonSize)
+
+	// Xiaomi Special Buttons arranged in a grid
+	xiaomiSpecialTab := container.NewGridWithColumns(
+		5, // 5 columns
+		xiaomiSpecialButton1,
+		xiaomiSpecialButton2,
+		xiaomiSpecialButton3,
+		xiaomiSpecialButton4,
+		xiaomiSpecialButton5,
+		xiaomiSpecialButton6,
+		xiaomiSpecialButton7,
+		xiaomiSpecialButton8,
+		xiaomiSpecialButton9,
+		xiaomiSpecialButton10,
+	)
+
+	// MediaTek Tab
+	mediatekButton1 := widget.NewButton("Button 1", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "MediaTek Button 1 clicked...\n")
+	})
+	mediatekButton2 := widget.NewButton("Button 2", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "MediaTek Button 2 clicked...\n")
+	})
+
+	// Set smaller size for MediaTek buttons
+	mediatekButton1.Resize(smallButtonSize)
+	mediatekButton2.Resize(smallButtonSize)
+
+	mediatekTab := container.NewGridWithColumns(
+		2, // 2 columns
+		mediatekButton1,
+		mediatekButton2,
+	)
+
+	// Flash EDL Tab
+	flashEDLButton1 := widget.NewButton("Button 1", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Flash EDL Button 1 clicked...\n")
+	})
+	flashEDLButton2 := widget.NewButton("Button 2", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Flash EDL Button 2 clicked...\n")
+	})
+
+	// Set smaller size for Flash EDL buttons
+	flashEDLButton1.Resize(smallButtonSize)
+	flashEDLButton2.Resize(smallButtonSize)
+
+	flashEDLTab := container.NewGridWithColumns(
+		2, // 2 columns
+		flashEDLButton1,
+		flashEDLButton2,
+	)
+
+	// Fastboot Tab (under Xiaomi)
+	xiaomiFastbootButton1 := widget.NewButton("Button 1", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Xiaomi Fastboot Button 1 clicked...\n")
+	})
+	xiaomiFastbootButton2 := widget.NewButton("Button 2", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Xiaomi Fastboot Button 2 clicked...\n")
+	})
+
+	// Set smaller size for Xiaomi Fastboot buttons
+	xiaomiFastbootButton1.Resize(smallButtonSize)
+	xiaomiFastbootButton2.Resize(smallButtonSize)
+
+	xiaomiFastbootTab := container.NewGridWithColumns(
+		2, // 2 columns
+		xiaomiFastbootButton1,
+		xiaomiFastbootButton2,
+	)
+
+	// Xiaomi Main Tab (nested tabs)
+	xiaomiTabs := container.NewAppTabs(
+		container.NewTabItem("Xiaomi Special", xiaomiSpecialTab),
+		container.NewTabItem("MediaTek", mediatekTab),
+		container.NewTabItem("Flash EDL", flashEDLTab),
+		container.NewTabItem("Fastboot", xiaomiFastbootTab),
+	)
+
+	// Samsung Tab
+	samsungButton1 := widget.NewButton("Samsung Button 1", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Samsung Button 1 clicked...\n")
+	})
+	samsungButton2 := widget.NewButton("Samsung Button 2", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Samsung Button 2 clicked...\n")
+	})
+	samsungButton3 := widget.NewButton("Samsung Button 3", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Samsung Button 3 clicked...\n")
+	})
+	samsungButton4 := widget.NewButton("Samsung Button 4", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Samsung Button 4 clicked...\n")
+	})
+	samsungButton5 := widget.NewButton("Samsung Button 5", func() {
+		clearLog()
+		logArea.SetText(logArea.Text + "Samsung Button 5 clicked...\n")
+	})
+
+	// Samsung Buttons side by side
+	samsungButtons := container.NewHBox(
+		samsungButton1,
+		samsungButton2,
+		samsungButton3,
+		samsungButton4,
+		samsungButton5,
+	)
+
+	samsungTab := container.NewVBox(
+		samsungButtons, // Buttons side by side
+	)
+
+	// Main Tabs (Navbar at the top)
 	tabs := container.NewAppTabs(
 		container.NewTabItem("ADB Device", adbTab),
 		container.NewTabItem("Fastboot Device", fastbootTab),
+		container.NewTabItem("Xiaomi", xiaomiTabs), // Nested tabs for Xiaomi
+		container.NewTabItem("Samsung", samsungTab),
 	)
-
-	// Xiaomi Tab
-	xiaomiTab := container.NewVBox(
-		widget.NewLabel("Xiaomi"),
-	)
-	// Declare Xiaomi tab
-	Xiaomi := container.NewTabItem("Xiaomi", xiaomiTab)
-	// Add Xiaomi tab to tabs
-	tabs.Append(Xiaomi)
-
-	// Samsung Tab
-	samsungTab := container.NewVBox(
-		widget.NewLabel("Samsung"),
-	)
-	// Declare Samsung tab
-	Samsung := container.NewTabItem("Samsung", samsungTab)
-	// Add Samsung tab to tabs
-	tabs.Append(Samsung)
 
 	// Time and Date
 	timeLabel := widget.NewLabel("")
