@@ -62,7 +62,7 @@ func main() {
 
 		return filteredOutput.String()
 	}
-
+	// adb read info filter function to extract specific details
 	filterAdbReadInfo := func(output string) string {
 		// Define the keys and their corresponding labels
 	keys := map[string]string{
@@ -110,7 +110,7 @@ func main() {
 		parsedValues["Root Access"] = "Denied"
 	}
 
-	// Format the output
+	// Format the adb read info output
 	var formattedOutput strings.Builder
 	formattedOutput.WriteString("Read Information\n")
 	formattedOutput.WriteString(fmt.Sprintf("Brand: %s\n", parsedValues["Brand"]))
