@@ -16,7 +16,7 @@ import (
 
 func main() {
 	myApp := app.New()
-	myWindow := myApp.NewWindow("Mobile Flash Tool")
+	myWindow := myApp.NewWindow("RFT Tool | Real Flash Tool")
 
 	// Set default theme to dark (black theme)
 	myApp.Settings().SetTheme(theme.DarkTheme())
@@ -25,6 +25,10 @@ func main() {
 	logArea := widget.NewMultiLineEntry()
 	logArea.Disable() // Make the log area read-only
 	logArea.Wrapping = fyne.TextWrapWord // Enable text wrapping
+
+	// Set text color for the log area
+
+	
 
 	// Function to clear the log
 	clearLog := func() {
@@ -213,10 +217,29 @@ func main() {
 		}
 		logArea.SetText(logArea.Text + "Successfully opened Diag with root...\n" + output + "\n")
 	})
+	WipeEfs := widget.NewButton("Wipe Efs", func() {
+		clearLog() // Clear the log before adding new content
+		output, err := runCommand("adb", "shell", "rm", "-rf", "/efs")
+		if err != nil {
+			logArea.SetText(logArea.Text + "Error Wiping Efs: " + err.Error() + "\n")
+			return
+		}
+		logArea.SetText(logArea.Text + "Successfully Wiped Efs...\n" + output + "\n")
+	})
+	RebootEdl := widget.NewButton("Reboot Edl", func() {
+		clearLog() // Clear the log before adding new content
+		output, err := runCommand("adb", "reboot", "edl")
+		if err != nil {
+			logArea.SetText(logArea.Text + "Error rebooting to Edl: " + err.Error() + "\n")
+			return
+		}
+		logArea.SetText(logArea.Text + "Successfully rebooted to Edl...\n" + output + "\n")
+	})
+	
 	
 
-	// ADB Buttons side by side
-	adbButtons := container.NewHBox(
+	adbButtons := container.NewGridWithColumns(
+		5, // Number of columns
 		adbCheckButton,
 		adbRebootButton,
 		adbToBootloader,
@@ -224,12 +247,12 @@ func main() {
 		adbRebootRecovery,
 		diagWithoutRoot,
 		diagWithRoot,
-
-		
+		WipeEfs,
+		RebootEdl,
 	)
-
+	
 	adbTab := container.NewVBox(
-		adbButtons, // Buttons side by side
+		adbButtons, // Buttons arranged in a 5-column grid
 	)
 
 	// Fastboot Tab
@@ -274,7 +297,8 @@ func main() {
 	})
 
 	// Fastboot Buttons side by side
-	fastbootButton := container.NewHBox(
+	fastbootButton := container.NewGridWithColumns(
+		5, // 5 columns
 		fastbootCheckButton,
 		fastbootReadInfoButton,
 		fastbootRebootButton,
@@ -478,6 +502,7 @@ func main() {
 	// Custom log area styling
 	logContainer := container.NewStack(
 		canvas.NewRectangle(theme.BackgroundColor()), // Background color
+		
 		container.NewScroll(logArea), // Scrollable log area
 	)
 
