@@ -74,24 +74,22 @@ func main() {
 		"ro.product.brand":                "Brand",
 		"ro.product.model":                "Model",
 		"ro.product.name":                 "Product",
-		
 		"ro.boot.hardware":				   "Cpu",
 		"ro.boot.hwlevel": 				   "Hardware Level",
-		"ro.hardware":                     "Hardware",
 		"ro.hardware.info":                "Hardware info",
 		"ro.secureboot.lockstate":		   "Bootloader",
 		"ro.build.version.release":        "Version",
 		"ro.build.version.incremental":	   "Android Version",
 		"ro.board.platform":               "Android platform",
-		
 		"ro.build.version.security_patch": "Security patch",
 		"ro.build.display.id":             "Software version",
 		"persist.sys.timezone":            "Time Zone",
 		"ro.secure":                       "Root Access",
+		"ro.ril.miui.imei":                "Device IMEI",
 		"ro.ril.miui.imei0":               "Device IMEI1",
-		"ro.ril.miui.imei1":               "Device IMEI2",
+		"ro.ril.miui.imei2":               "Device IMEI2",
 		"ro.frp.pst":                      "FRP PST",
-		"ro.boot.flash.locked":            "Bootloader state",
+		"ro.boot.slot":            		   "Active Slot",
 		"ro.crypto.state":                 "Crypto State",
 	}
 
@@ -128,20 +126,19 @@ func main() {
 	formattedOutput.WriteString(fmt.Sprintf("Bootloader: %s\n", parsedValues["Bootloader"]))
 	formattedOutput.WriteString(fmt.Sprintf("Cpu: %s\n", parsedValues["Cpu"]))
 	formattedOutput.WriteString(fmt.Sprintf("Hardware Level: %s\n", parsedValues["Hardware Level"]))
-	formattedOutput.WriteString(fmt.Sprintf("Hardware: %s\n", parsedValues["Hardware"]))
 	formattedOutput.WriteString(fmt.Sprintf("Hardware info: %s\n", parsedValues["Hardware Info"]))
 	formattedOutput.WriteString(fmt.Sprintf("Version: %s\n", parsedValues["Version"]))
 	formattedOutput.WriteString(fmt.Sprintf("Android Version: %s\n", parsedValues["Android Version"]))
 	formattedOutput.WriteString(fmt.Sprintf("Android platform: %s\n", parsedValues["Android platform"]))
-	
 	formattedOutput.WriteString(fmt.Sprintf("Security patch: %s\n", parsedValues["Security patch"]))
 	formattedOutput.WriteString(fmt.Sprintf("Software version: %s\n", parsedValues["Software version"]))
 	formattedOutput.WriteString(fmt.Sprintf("Time Zone: %s\n", parsedValues["Time Zone"]))
 	formattedOutput.WriteString(fmt.Sprintf("Root Access: %s\n", parsedValues["Root Access"]))
+	formattedOutput.WriteString(fmt.Sprintf("Device IMEI: %s\n", parsedValues["Device IMEI"]))
 	formattedOutput.WriteString(fmt.Sprintf("Device IMEI1: %s\n", parsedValues["Device IMEI1"]))
 	formattedOutput.WriteString(fmt.Sprintf("Device IMEI2: %s\n", parsedValues["Device IMEI2"]))
 	formattedOutput.WriteString(fmt.Sprintf("FRP PST: %s\n", parsedValues["FRP PST"]))
-	formattedOutput.WriteString(fmt.Sprintf("Bootloader state: %s\n", parsedValues["Bootloader state"]))
+	formattedOutput.WriteString(fmt.Sprintf("Active Slot: %s\n", parsedValues["Active Slot"]))
 	formattedOutput.WriteString(fmt.Sprintf("Crypto State: %s\n", parsedValues["Crypto State"]))
 	formattedOutput.WriteString("Operation time: 00:03\n") // Hardcoded for now
 
