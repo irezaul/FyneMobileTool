@@ -12,6 +12,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/dialog"
 )
 
 func main() {
@@ -73,18 +74,22 @@ func main() {
 		"ro.product.brand":                "Brand",
 		"ro.product.model":                "Model",
 		"ro.product.name":                 "Product",
+		
+		"ro.boot.hardware":				   "Cpu",
+		"ro.boot.hwlevel": 				   "Hardware Level",
 		"ro.hardware":                     "Hardware",
+		"ro.hardware.info":                "Hardware info",
+		"ro.secureboot.lockstate":		   "Bootloader",
 		"ro.build.version.release":        "Version",
-		"ro.build.version.sdk":           "SdkVersion",
-		"ro.product.cpu.abi":              "Android Cpu",
+		"ro.build.version.incremental":	   "Android Version",
 		"ro.board.platform":               "Android platform",
-		"ro.product.board":                "Board name",
+		
 		"ro.build.version.security_patch": "Security patch",
 		"ro.build.display.id":             "Software version",
 		"persist.sys.timezone":            "Time Zone",
 		"ro.secure":                       "Root Access",
-		"ril.IMEI":                        "Device IMEI1",
-		"ril.IMEI2":                       "Device IMEI2",
+		"ro.ril.miui.imei0":               "Device IMEI1",
+		"ro.ril.miui.imei1":               "Device IMEI2",
 		"ro.frp.pst":                      "FRP PST",
 		"ro.boot.flash.locked":            "Bootloader state",
 		"ro.crypto.state":                 "Crypto State",
@@ -120,12 +125,15 @@ func main() {
 	formattedOutput.WriteString(fmt.Sprintf("Brand: %s\n", parsedValues["Brand"]))
 	formattedOutput.WriteString(fmt.Sprintf("Model: %s\n", parsedValues["Model"]))
 	formattedOutput.WriteString(fmt.Sprintf("Product: %s\n", parsedValues["Product"]))
+	formattedOutput.WriteString(fmt.Sprintf("Bootloader: %s\n", parsedValues["Bootloader"]))
+	formattedOutput.WriteString(fmt.Sprintf("Cpu: %s\n", parsedValues["Cpu"]))
+	formattedOutput.WriteString(fmt.Sprintf("Hardware Level: %s\n", parsedValues["Hardware Level"]))
 	formattedOutput.WriteString(fmt.Sprintf("Hardware: %s\n", parsedValues["Hardware"]))
+	formattedOutput.WriteString(fmt.Sprintf("Hardware info: %s\n", parsedValues["Hardware Info"]))
 	formattedOutput.WriteString(fmt.Sprintf("Version: %s\n", parsedValues["Version"]))
-	formattedOutput.WriteString(fmt.Sprintf("SdkVersion: %s\n", parsedValues["SdkVersion"]))
-	formattedOutput.WriteString(fmt.Sprintf("Android Cpu: %s\n", parsedValues["Android Cpu"]))
+	formattedOutput.WriteString(fmt.Sprintf("Android Version: %s\n", parsedValues["Android Version"]))
 	formattedOutput.WriteString(fmt.Sprintf("Android platform: %s\n", parsedValues["Android platform"]))
-	formattedOutput.WriteString(fmt.Sprintf("Board name: %s\n", parsedValues["Board name"]))
+	
 	formattedOutput.WriteString(fmt.Sprintf("Security patch: %s\n", parsedValues["Security patch"]))
 	formattedOutput.WriteString(fmt.Sprintf("Software version: %s\n", parsedValues["Software version"]))
 	formattedOutput.WriteString(fmt.Sprintf("Time Zone: %s\n", parsedValues["Time Zone"]))
@@ -139,6 +147,25 @@ func main() {
 
 	return formattedOutput.String()
 }
+
+// scan adb and fastboot devices button with pop up message
+scanDevices := widget.NewButton("Scan Devices", func() {
+	clearLog() // Clear the log before adding new content
+	output, err := runCommand("adb", "devices")
+	if err != nil {
+		logArea.SetText(logArea.Text + "Error scanning devices: " + err.Error() + "\n")
+		return
+	}
+	logArea.SetText(logArea.Text + "Scanning devices...\n" + output + "\n")
+
+	// Check if the output contains "unauthorized"
+	if strings.Contains(output, "unauthorized") {
+		dialog.ShowInformation("Scan Devices", "Please allow USB debugging on your device.", myWindow)
+	}
+})
+
+
+// ADB Tab
 
 	// Function to check ADB devices and handle unauthorized state
 	checkADB := func() {
@@ -217,15 +244,40 @@ func main() {
 		}
 		logArea.SetText(logArea.Text + "Successfully opened Diag with root...\n" + output + "\n")
 	})
+	// create wipe efs need backup then wipe and warrning message need yes to reset no to cancel
+
+	
 	WipeEfs := widget.NewButton("Wipe Efs", func() {
+		// Show a confirmation dialog before proceeding
 		clearLog() // Clear the log before adding new content
-		output, err := runCommand("adb", "shell", "rm", "-rf", "/efs")
-		if err != nil {
-			logArea.SetText(logArea.Text + "Error Wiping Efs: " + err.Error() + "\n")
-			return
-		}
-		logArea.SetText(logArea.Text + "Successfully Wiped Efs...\n" + output + "\n")
+		dialog.ShowConfirm(
+			"Wipe Efs", // Title
+			"This will delete all data in the Efs partition. Make sure you have a backup! Do you want to continue?", // Message
+			func(response bool) { // Callback function
+				if response {
+					// User clicked "Yes"
+					logArea.SetText(logArea.Text + "Wiping Efs...\n")
+
+					// Simulate running a command (replace with actual command execution)
+					output, err := runCommand("adb", "shell", "rm", "-rf", "/efs")
+					if err != nil {
+						logArea.SetText(logArea.Text + "Error Wiping Efs: " + err.Error() + "\n")
+						return
+					}
+
+					// Log success message
+					logArea.SetText(logArea.Text + "Successfully Wiped Efs...\n" + output + "\n")
+				} else {
+					// User clicked "No" or closed the dialog
+					logArea.SetText(logArea.Text + "Wipe Efs operation canceled.\n")
+				}
+			},
+			myWindow, // Parent window for the dialog
+		)
 	})
+
+
+	
 	RebootEdl := widget.NewButton("Reboot Edl", func() {
 		clearLog() // Clear the log before adding new content
 		output, err := runCommand("adb", "reboot", "edl")
@@ -240,6 +292,7 @@ func main() {
 
 	adbButtons := container.NewGridWithColumns(
 		5, // Number of columns
+		scanDevices,
 		adbCheckButton,
 		adbRebootButton,
 		adbToBootloader,
