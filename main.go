@@ -93,7 +93,7 @@ scanDevicesSection := container.NewVBox(
     // Tabs
     adbTab := createAdbTab(logArea, clearLog, runCommand, myWindow)
     fastbootTab := createFastbootTab(logArea, clearLog, runCommand)
-    samsungTab := createSamsungTab(logArea, clearLog)
+    samsungTab := createSamsungTab(logArea, clearLog, myWindow)
 
     // Main Tabs (Navbar at the top)
     tabs := container.NewAppTabs(

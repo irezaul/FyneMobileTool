@@ -139,54 +139,9 @@ func createAdbTab(logArea *widget.Entry, clearLog func(), runCommand func(string
         }
         logArea.SetText(logArea.Text + "Successfully rebooted to recovery...\n" + output + "\n")
     })
-    diagWithoutRoot := widget.NewButton("Diag without root", func() {
-        clearLog()
-        output, err := runCommand("adb", "shell", "am", "start", "-n", "com.android.settings/.DevelopmentSettings")
-        if err != nil {
-            logArea.SetText(logArea.Text + "Error opening Diag without root: " + err.Error() + "\n")
-            return
-        }
-        logArea.SetText(logArea.Text + "Successfully opened Diag without root...\n" + output + "\n")
-    })
-    diagWithRoot := widget.NewButton("Diag with root", func() {
-        clearLog()
-        output, err := runCommand("adb", "shell", "am", "start", "-n", "com.android.settings/.DevelopmentSettings")
-        if err != nil {
-            logArea.SetText(logArea.Text + "Error opening Diag with root: " + err.Error() + "\n")
-            return
-        }
-        logArea.SetText(logArea.Text + "Successfully opened Diag with root...\n" + output + "\n")
-    })
-    WipeEfs := widget.NewButton("Wipe Efs", func() {
-        clearLog()
-        dialog.ShowConfirm(
-            "Wipe Efs",
-            "This will delete all data in the Efs partition. Make sure you have a backup! Do you want to continue?",
-            func(response bool) {
-                if response {
-                    logArea.SetText(logArea.Text + "Wiping Efs...\n")
-                    output, err := runCommand("adb", "shell", "rm", "-rf", "/efs")
-                    if err != nil {
-                        logArea.SetText(logArea.Text + "Error Wiping Efs: " + err.Error() + "\n")
-                        return
-                    }
-                    logArea.SetText(logArea.Text + "Successfully Wiped Efs...\n" + output + "\n")
-                } else {
-                    logArea.SetText(logArea.Text + "Wipe Efs operation canceled.\n")
-                }
-            },
-            myWindow,
-        )
-    })
-    RebootEdl := widget.NewButton("Reboot Edl", func() {
-        clearLog()
-        output, err := runCommand("adb", "reboot", "edl")
-        if err != nil {
-            logArea.SetText(logArea.Text + "Error rebooting to Edl: " + err.Error() + "\n")
-            return
-        }
-        logArea.SetText(logArea.Text + "Successfully rebooted to Edl...\n" + output + "\n")
-    })
+    
+    
+    
 
     adbButtons := container.NewGridWithColumns(
         5,
@@ -196,10 +151,9 @@ func createAdbTab(logArea *widget.Entry, clearLog func(), runCommand func(string
         adbToBootloader,
         adbReadInfo,
         adbRebootRecovery,
-        diagWithoutRoot,
-        diagWithRoot,
-        WipeEfs,
-        RebootEdl,
+        
+        
+        
     )
 
     return container.NewVBox(adbButtons)
